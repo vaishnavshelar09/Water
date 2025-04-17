@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Water Intake Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #eaf6ff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2980b9;
+        }
+
+        canvas {
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 15px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1e6aa6;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Water Intake Reminder Setup</h2>
+        <p><strong>{{ name }}</strong>, your daily target is <strong>{{ water }} ml</strong> of water.</p>
+        <canvas id="intakeChart"></canvas>
+
+        <form action="/stop" method="POST" style="display:inline;">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <button type="submit">Stop Notifications</button>
+        </form>
+
+        <form action="/track" method="GET" style="display:inline;">
+            <button type="submit">Track Message Status</button>
+        </form>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('intakeChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ scheduled_times | tojson }},
+                datasets: [{
+                    label: 'Water Intake (ml)',
+                    data: {{ water_amounts | tojson }},
+                    backgroundColor: '#3498db',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#2980b9'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Water (ml)',
+                            color: '#2980b9'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#2980b9'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time',
+                            color: '#2980b9'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#2980b9'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
