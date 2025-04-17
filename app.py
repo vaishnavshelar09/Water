@@ -9,11 +9,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# Load environment variables
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
-# Twilio setup
+# Twilio setup (✅ Correct usage)
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
@@ -23,10 +24,10 @@ client = Client(account_sid, auth_token)
 email_user = os.getenv("EMAIL_USER")
 email_password = os.getenv("EMAIL_PASSWORD")
 
-# Active scheduler tracking (phone/email)
+# Active scheduler tracking
 active_schedulers = {}
 
-# Storage for tracking reminders
+# Logs
 sent_sms_log = []
 sent_email_log = []
 
@@ -75,9 +76,7 @@ def start_scheduling(name, total_ml, phone, email, start_time, end_time, interva
     if total_minutes <= 0:
         return
 
-    intervals = total_minutes // interval
-    if intervals == 0:
-        intervals = 1
+    intervals = total_minutes // interval or 1
     intake_per_interval = total_ml // intervals
 
     active_flag = {'active': True}
@@ -118,6 +117,7 @@ def index():
         if not phone and not email:
             return "Please provide either a mobile number or email."
 
+        # Calculate total water intake
         base = 2000
         if gender == "male": base += 500
         if weight > 70: base += 250
@@ -131,9 +131,7 @@ def index():
             end_time += timedelta(days=1)
 
         total_minutes = int((end_time - start_time).total_seconds() // 60)
-        intervals = total_minutes // interval
-        if intervals == 0:
-            intervals = 1
+        intervals = total_minutes // interval or 1
         intake_per_interval = base // intervals
 
         scheduled_times = [(start_time + timedelta(minutes=i * interval)).strftime('%H:%M') for i in range(intervals)]
@@ -175,7 +173,7 @@ def stop():
 
 @app.route("/track")
 def track():
-    delivered_count = len(sent_sms_log)  # Count how many messages have been delivered
+    delivered_count = len(sent_sms_log)
     return render_template("track.html", 
                            reminders_sms=sent_sms_log, 
                            reminders_email=sent_email_log,
