@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Water Reminder App</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,600">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #00c6ff, #0072ff);
             padding: 40px;
+            margin: 0;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .header h2 {
+            font-size: 18px;
+            font-weight: 400;
+            margin: 5px 0;
         }
         .container {
             max-width: 600px;
@@ -18,10 +33,11 @@
             border-radius: 15px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
         }
-        h2 {
+        .container h2 {
             text-align: center;
             color: #0072ff;
             font-weight: 600;
+            margin-bottom: 20px;
         }
         input, select {
             width: 100%;
@@ -54,6 +70,16 @@
     </style>
 </head>
 <body>
+
+    <div class="header">
+        <h1>K.K Wagh Institute Of Engineering Education and Research, Nashik</h1>
+        <h2>Branch: Robotics and Automation</h2>
+        <h2>Subject: Soft Skills</h2>
+        <h2>Project: Smart Water Reminder</h2>
+        <h2>Mentor: Ms Madhuri Badhe mam</h2>
+        <h2>Students: Manish Baviskar, Abhijeet Patil, Vaishnav Shelar, Sumeet Zope</h2>
+    </div>
+
     <div class="container">
         <h2>Personalized Water Reminder</h2>
         <form action="/" method="POST">
@@ -85,5 +111,6 @@
             <button type="submit">Start Reminders</button>
         </form>
     </div>
+
 </body>
 </html>

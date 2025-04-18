@@ -23,6 +23,7 @@ PyJWT==2.10.1
 python-dotenv==1.0.1
 requests==2.31.0
 twilio==8.10.1
+tzdata==2025.2
 urllib3==2.4.0
 Werkzeug==2.3.7
 yarl==1.19.0
