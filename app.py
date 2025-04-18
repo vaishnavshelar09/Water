@@ -116,27 +116,32 @@ def start_scheduling(name, total_ml, phone, email, start_time, end_time, interva
     def schedule_loop():
         logger.info(f"Scheduler loop started for {name}")
         print(f"🔁 Starting scheduler loop at {datetime.now()}")
-        
+
+        # Calculate initial delay
+        delay = (start_datetime - datetime.now()).total_seconds()
+        if delay > 0:
+            logger.info(f"Waiting {delay / 60:.1f} minutes until first reminder")
+            time.sleep(delay)  # Wait for the first reminder to send
+
+        # Send reminders at intervals
         for i in range(intervals):
             if not active_flag['active']:
                 logger.info("Scheduler stopped by user request")
                 print("❌ Scheduler stopped")
                 break
-                
-            delay = (start_datetime - datetime.now()).total_seconds() + i * interval * 60
-            if delay > 0:
-                logger.info(f"Waiting {delay/60:.1f} minutes for next reminder")
-                time.sleep(delay)
-                
+
             if active_flag['active']:
                 message = f"Hi {name}! 💧 It's time to drink {intake_per_interval}ml of water. Stay hydrated!"
                 logger.info(f"Sending reminder #{i+1}/{intervals}")
                 print(f"📤 Sending reminder to {phone or email}")
-                
+
                 if phone:
                     send_sms(phone, message)
                 elif email:
                     send_email(email, "Water Reminder", message)
+
+            # Wait for the next reminder based on the interval
+            time.sleep(interval * 60)  # Wait for the next reminder
 
     thread = threading.Thread(target=schedule_loop)
     thread.daemon = True  # Important for Render worker service
