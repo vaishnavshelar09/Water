@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+# App and secret key setup
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
@@ -27,6 +29,14 @@ app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
+
+# Debugging log to ensure environment variables are loaded
+logger.info(f"TWILIO_ACCOUNT_SID: {account_sid}")
+logger.info(f"TWILIO_AUTH_TOKEN: {auth_token}")
+
+# Initialize Twilio client if credentials exist
+if not account_sid or not auth_token:
+    logger.error("Twilio credentials missing in environment variables.")
 client = Client(account_sid, auth_token) if account_sid and auth_token else None
 
 # Email setup
@@ -36,16 +46,16 @@ email_password = os.getenv("EMAIL_PASSWORD")
 # Active scheduler tracking
 active_schedulers = {}
 
-# Logs
+# Logs for sent messages
 sent_sms_log = []
 sent_email_log = []
 
+# Helper functions
 def send_sms(to, message):
+    if not client:
+        logger.error("Twilio client not initialized - SMS not sent")
+        return
     try:
-        if not client:
-            logger.error("Twilio client not initialized - SMS not sent")
-            return
-            
         logger.info(f"Attempting to send SMS to {to}")
         response = client.messages.create(
             body=message,
