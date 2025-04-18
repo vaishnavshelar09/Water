@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo  # <-- added for IST timezone support
 import os
 from dotenv import load_dotenv
 from twilio.rest import Client
@@ -9,6 +10,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
+
+# Set IST timezone
+IST = ZoneInfo("Asia/Kolkata")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,12 +27,7 @@ app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
-client = None
-
-if account_sid and auth_token:
-    client = Client(account_sid, auth_token)
-else:
-    logger.error("Twilio credentials not found in environment variables!")
+client = Client(account_sid, auth_token) if account_sid and auth_token else None
 
 # Email setup
 email_user = os.getenv("EMAIL_USER")
@@ -48,19 +47,18 @@ def send_sms(to, message):
             return
             
         logger.info(f"Attempting to send SMS to {to}")
-        message = client.messages.create(
+        response = client.messages.create(
             body=message,
             from_=twilio_number,
             to=to
         )
-        logger.info(f"SMS sent successfully! SID: {message.sid}")
+        logger.info(f"SMS sent successfully! SID: {response.sid}")
         sent_sms_log.append({
-            "time": datetime.now().strftime("%H:%M"),
+            "time": datetime.now(IST).strftime("%H:%M"),
             "amount": message.split("drink ")[1].split("ml")[0] + " ml"
         })
     except Exception as e:
         logger.error(f"SMS Error: {str(e)}")
-        print(f"SMS Error details: {str(e)}")
 
 def send_email(to, subject, message):
     msg = MIMEMultipart()
@@ -77,22 +75,21 @@ def send_email(to, subject, message):
             server.sendmail(email_user, to, msg.as_string())
         logger.info("Email sent successfully!")
         sent_email_log.append({
-            "time": datetime.now().strftime("%H:%M"),
+            "time": datetime.now(IST).strftime("%H:%M"),
             "amount": message.split("drink ")[1].split("ml")[0] + " ml"
         })
     except Exception as e:
         logger.error(f"Email Error: {str(e)}")
-        print(f"Email Error details: {str(e)}")
 
 def start_scheduling(name, total_ml, phone, email, start_time, end_time, interval):
     logger.info(f"Starting scheduler for {name} (Phone: {phone}, Email: {email})")
-    print(f"⏰ New scheduler started at {datetime.now()}")
+    print(f"⏰ New scheduler started at {datetime.now(IST)}")
 
     if phone in active_schedulers:
         logger.info(f"Stopping existing scheduler for {phone}")
         active_schedulers[phone]['active'] = False
 
-    now = datetime.now()
+    now = datetime.now(IST)
     start_datetime = now.replace(hour=start_time.hour, minute=start_time.minute, second=0, microsecond=0)
     end_datetime = now.replace(hour=end_time.hour, minute=end_time.minute, second=0, microsecond=0)
 
@@ -115,36 +112,32 @@ def start_scheduling(name, total_ml, phone, email, start_time, end_time, interva
 
     def schedule_loop():
         logger.info(f"Scheduler loop started for {name}")
-        print(f"🔁 Starting scheduler loop at {datetime.now()}")
+        print(f"🔁 Starting scheduler loop at {datetime.now(IST)}")
 
-        # Calculate initial delay
-        delay = (start_datetime - datetime.now()).total_seconds()
+        delay = (start_datetime - datetime.now(IST)).total_seconds()
         if delay > 0:
             logger.info(f"Waiting {delay / 60:.1f} minutes until first reminder")
-            time.sleep(delay)  # Wait for the first reminder to send
+            time.sleep(delay)
 
-        # Send reminders at intervals
         for i in range(intervals):
             if not active_flag['active']:
                 logger.info("Scheduler stopped by user request")
                 print("❌ Scheduler stopped")
                 break
 
-            if active_flag['active']:
-                message = f"Hi {name}! 💧 It's time to drink {intake_per_interval}ml of water. Stay hydrated!"
-                logger.info(f"Sending reminder #{i+1}/{intervals}")
-                print(f"📤 Sending reminder to {phone or email}")
+            message = f"Hi {name}! 💧 It's time to drink {intake_per_interval}ml of water. Stay hydrated!"
+            logger.info(f"Sending reminder #{i+1}/{intervals}")
+            print(f"📤 Sending reminder to {phone or email}")
 
-                if phone:
-                    send_sms(phone, message)
-                elif email:
-                    send_email(email, "Water Reminder", message)
+            if phone:
+                send_sms(phone, message)
+            elif email:
+                send_email(email, "Water Reminder", message)
 
-            # Wait for the next reminder based on the interval
-            time.sleep(interval * 60)  # Wait for the next reminder
+            time.sleep(interval * 60)
 
     thread = threading.Thread(target=schedule_loop)
-    thread.daemon = True  # Important for Render worker service
+    thread.daemon = True
     thread.start()
     logger.info("Background scheduler thread started")
 
@@ -172,7 +165,6 @@ def index():
 
             logger.info(f"Processing form for {name}")
             
-            # Calculate total water intake
             base = 2000
             if gender == "male": base += 500
             if weight > 70: base += 250
@@ -180,9 +172,11 @@ def index():
             if age < 18: base -= 250
             logger.info(f"Calculated water intake: {base}ml")
 
-            start_time = datetime.now().replace(hour=start_hour, minute=start_minute, second=0, microsecond=0)
-            end_time = datetime.now().replace(hour=end_hour, minute=end_minute, second=0, microsecond=0)
-            if start_time < datetime.now():
+            now = datetime.now(IST)
+            start_time = now.replace(hour=start_hour, minute=start_minute, second=0, microsecond=0)
+            end_time = now.replace(hour=end_hour, minute=end_minute, second=0, microsecond=0)
+
+            if start_time < now:
                 logger.info("Adjusting schedule to tomorrow")
                 start_time += timedelta(days=1)
                 end_time += timedelta(days=1)
