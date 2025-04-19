@@ -15,6 +15,45 @@
             align-items: center;
         }
 
+        /* Blue background box animation */
+        .background-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Floating emojis in the blue background */
+        .floating-emoji {
+            position: absolute;
+            font-size: 30px;
+            animation: floatAround 6s linear infinite;
+            opacity: 0.5;
+        }
+
+        .floating-emoji:nth-child(odd) {
+            animation-duration: 8s;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-30px) translateX(15px) rotate(20deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
+        }
+
         .box {
             background: white;
             padding: 30px;
@@ -77,6 +116,16 @@
     </style>
 </head>
 <body>
+    <!-- Blue background box with floating emojis -->
+    <div class="background-box">
+        <div class="floating-emoji" style="top: 10%; left: 5%;">🚰</div>
+        <div class="floating-emoji" style="bottom: 15%; right: 7%;">🥤</div>
+        <div class="floating-emoji" style="top: 25%; right: 12%;">💧</div>
+        <div class="floating-emoji" style="bottom: 5%; left: 10%;">🫗</div>
+        <div class="floating-emoji" style="top: 40%; left: 45%;">🚰</div>
+    </div>
+
+    <!-- Main content box -->
     <div class="box">
         <h1>Reminder Tracker</h1>
         <h2>SMS Messages Delivered: {{ delivered }}</h2>
