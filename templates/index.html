@@ -10,11 +10,13 @@
             background: linear-gradient(to right, #00c6ff, #0072ff);
             padding: 40px;
             margin: 0;
+            overflow-x: hidden;
         }
         .header {
             text-align: center;
             color: white;
             margin-bottom: 30px;
+            position: relative;
         }
         .header h1 {
             font-size: 26px;
@@ -31,14 +33,27 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+            position: relative;
         }
         .container h2 {
             text-align: center;
             color: #0072ff;
             font-weight: 600;
             margin-bottom: 20px;
+            font-size: 24px;
+            position: relative;
         }
+
+        .emoji {
+            display: inline-block;
+            animation: float 2s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
         input, select {
             width: 100%;
             padding: 12px;
@@ -63,25 +78,54 @@
             border-radius: 5px;
             font-size: 18px;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
         button:hover {
             background: #005bb5;
+        }
+
+        /* Decorative animated emojis in background */
+        .floating-emoji {
+            position: absolute;
+            font-size: 24px;
+            animation: floatAround 5s linear infinite;
+            opacity: 0.5;
+        }
+        .floating-emoji:nth-child(odd) {
+            animation-duration: 7s;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-30px) translateX(10px) rotate(20deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>K.K Wagh Institute Of Engineering Education and Research, Nashik</h1>
+        <h1>💧 K.K Wagh Institute Of Engineering Education and Research, Nashik 💧</h1>
         <h2>Branch: Robotics and Automation</h2>
         <h2>Subject: Soft Skills</h2>
-        <h2>Project: Smart Water Reminder</h2>
+        <h2>Project: Smart Water Reminder 🚰</h2>
         <h2>Mentor: Ms Madhuri Badhe mam</h2>
         <h2>Students: Manish Baviskar, Abhijeet Patil, Vaishnav Shelar, Sumeet Zope</h2>
     </div>
 
     <div class="container">
-        <h2>Personalized Water Reminder</h2>
+        <h2>
+            <span class="emoji">💧</span> Personalized Water Reminder <span class="emoji">💧</span>
+        </h2>
         <form action="/" method="POST">
             <input type="text" name="name" placeholder="Your Name" required>
             <input type="number" name="age" placeholder="Age" required>
@@ -89,8 +133,8 @@
             <input type="number" name="weight" placeholder="Weight (kg)" required>
             <select name="gender" required>
                 <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="male">Male 🚹</option>
+                <option value="female">Female 🚺</option>
             </select>
 
             <label>Start Time:</label>
@@ -105,12 +149,19 @@
                 <input type="number" name="end_minute" placeholder="Minute (0-59)" min="0" max="59" required>
             </div>
 
-            <input type="number" name="interval" placeholder="Interval (in minutes)" required>
-            <input type="tel" name="phone" placeholder="Mobile Number (with country code)">
-            <input type="email" name="email" placeholder="Email (Optional)">
-            <button type="submit">Start Reminders</button>
+            <input type="number" name="interval" placeholder="Interval (in minutes) ⏱️" required>
+            <input type="tel" name="phone" placeholder="Mobile Number (with country code) 📱">
+            <input type="email" name="email" placeholder="Email (Optional) 📧">
+            <button type="submit">Start Reminders 🚀</button>
         </form>
     </div>
+
+    <!-- Floating decorative emojis (optional and fun) -->
+    <div class="floating-emoji" style="top: 5%; left: 3%;">💦</div>
+    <div class="floating-emoji" style="top: 20%; right: 4%;">🚰</div>
+    <div class="floating-emoji" style="bottom: 10%; left: 6%;">🥤</div>
+    <div class="floating-emoji" style="bottom: 15%; right: 7%;">💧</div>
+    <div class="floating-emoji" style="top: 35%; left: 50%;">🫗</div>
 
 </body>
 </html>
